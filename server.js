@@ -16,14 +16,21 @@ hbs.registerHelper('screamIt', (text) => {
 })
 
 app.set('view engine', 'hbs');
-app.use(express.static(__dirname + '/public'));
+
 app.use((req, res, next) => {
   var activity = `${new Date().toString()}: ${req.method} ${req.url}\n`;
-  fs.appendFile('server-log.txt', activity, () => {
+  fs.appendFile('server.log', activity, () => {
     console.log(activity);
   });
   next();
 });
+
+// uncomment if in maintenance mode
+app.use((req, res, next) => {
+  res.render('maintenance.hbs');
+});
+
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', (req, res) => {
   res.send({
