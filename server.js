@@ -2,6 +2,7 @@
 
 const express = require('express');
 const hbs = require('hbs');
+const fs = require('fs');
 
 var app = express();
 
@@ -10,8 +11,19 @@ hbs.registerHelper('getCurrentYear', () => {
   return new Date().getFullYear();
 })
 
+hbs.registerHelper('screamIt', (text) => {
+  return text.toUpperCase();
+})
+
 app.set('view engine', 'hbs');
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/public'));
+app.use((req, res, next) => {
+  var activity = `${new Date().toString()}: ${req.method} ${req.url}\n`;
+  fs.appendFile('server-log.txt', activity, () => {
+    console.log(activity);
+  });
+  next();
+});
 
 app.get('/', (req, res) => {
   res.send({
